@@ -2,6 +2,21 @@
   
   // Call iterator(value, key, obj) for each element of obj
   var each = function(obj, iterator) {
+    // console.log(obj.isArray);
+    if (Array.isArray(obj)) {
+      // Array
+      for(i = 0; i < obj.length; i++){
+        iterator(obj[i],i,obj);
+      }
+    }
+    else {
+      for(var key in obj) {
+        //console.log(ourObject[k]);
+        if (obj.hasOwnProperty(key)) {
+          iterator(obj[key],key,obj);
+        };
+      };
+    };
   };
 
   // Determine if the array or object contains a given value (using `===`).
