@@ -114,9 +114,6 @@
     if (!initialValue) previousValue = 0;
     if (!obj) return initialValue;
     for (var i = 0; i < obj.length ; i++) {
-      console.log('i ' + i);
-      console.log('obj[i] = ' + obj[i]);
-      console.log('previousValue  ' + previousValue);
       previousValue = iterator(previousValue, obj[i]);
     }
     return previousValue;
@@ -214,7 +211,22 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   var delay = function(func, wait) {
+    num_args = arguments.length - 2;
+    params = _.last(arguments, num_args);
+    
+    var timedFunction = function() {
+      // functions can take parameters as an array
+      func(params);
+    };
+
+    //setTimeout(timedFunction(), wait);
+
+    setTimeout(function() {
+      // functions can take parameters as an array
+      func(params);
+    }, wait);
   };
+  
 
   // Extend a given object with all the properties of the passed in 
   // object(s).
