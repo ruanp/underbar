@@ -5,7 +5,7 @@
     // console.log(obj.isArray);
     if (Array.isArray(obj)) {
       // Array
-      for(i = 0; i < obj.length; i++){
+      for(var i = 0; i < obj.length; i++){
         iterator(obj[i],i,obj);
       }
     }
@@ -21,25 +21,78 @@
 
   // Determine if the array or object contains a given value (using `===`).
   var contains = function(obj, target) {
+    if(Array.isArray(obj)){
+      for(var i = 0; i < obj.length; i++) {
+        if(obj[i] === target) {
+          return true;
+        }
+      }
+      return false;
+    } 
+    else {
+      for(var key in obj) {
+        if(obj[key] === target) {
+          return true;
+        }
+      }
+      return false;
+    }
   };
 
   // Return the results of applying an iterator to each element.
   var map = function(array, iterator) {
+    if (array === null) return [];
+    
+    var mapResult = [];
+
+    for (var i = 0; i < array.length; i++) {
+      mapResult[i] = iterator(array[i]);
+    };
+
+    return mapResult;
   };
 
   // Takes an array of objects and returns and array of the values of
   // a certain property in it. E.g. take an array of people and return
   // an array of just their ages
   var pluck = function(obj, property) {
+    var pluckResult = [];
+    for (var i = 0; i < obj.length; i++) {
+      pluckResult[i] = obj[i][property];
+    };
+    return pluckResult;
   };
 
   // Return an array of the last n elements of an array. If n is undefined,
   // return just the last element.
   var last = function(array, n) {
+    
+    if (n === undefined) n = 1;
+    if (array === null) return undefined;
+    if (n > array.length) n = array.length;
+
+    var lastResult = [];
+
+    for (var i = array.length - n; i < array.length; i++) {
+      lastResult.push(array[i]);
+    };
+
+    return lastResult;
   };
 
   // Like last, but for the first elements
   var first = function(array, n) {
+
+    if (n === undefined) n = 1;
+    if (array === null) return undefined;
+    if (n > array.length) n = array.length;
+
+    var firstResult = [];
+
+    for (var i = 0; i <= (n - 1); i++) {
+      firstResult.push(array[i]);
+    }
+    return firstResult;
   };
 
   // Reduces an array or object to a single value by repetitively calling
@@ -56,31 +109,93 @@
   //   }, 0); // should be 6
   //
   var reduce = function(obj, iterator, initialValue) {
+    
+    var previousValue = initialValue;
+    if (!initialValue) previousValue = 0;
+    if (!obj) return initialValue;
+    for (var i = 0; i < obj.length ; i++) {
+      console.log('i ' + i);
+      console.log('obj[i] = ' + obj[i]);
+      console.log('previousValue  ' + previousValue);
+      previousValue = iterator(previousValue, obj[i]);
+    }
+    return previousValue;
   };
 
   // Return all elements of an array that pass a truth test.
   var select = function(array, iterator) {
+
+    var result = [];
+    for(var i = 0; i < array.length; i++) {
+      if(iterator(array[i])) result.push(array[i]);
+    }
+    return result;
   };
 
   // Return all elements of an array that don't pass a truth test.
   var reject = function(array, iterator) {
+    var result = [];
+    for(var i = 0; i < array.length; i++) {
+      if(!iterator(array[i])) result.push(array[i]);
+    }
+    return result;
   };
 
   // Determine whether all of the elements match a truth test.
   var every = function(obj, iterator) {
+    for(var i = 0; i < obj.length; i++) {
+      if(!iterator(obj[i])) return false;
+    }
+    return true;
   };
 
   // Determine whether any of the elements pass a truth test.
   var any = function(obj, iterator) {
+
+    for(var i = 0; i < obj.length; i++) {
+      if (!iterator) {
+        if(obj[i]) return true;
+      }
+      else {
+        if(iterator(obj[i])) return true;
+      }
+    }
+    return false;
   };
 
   // Produce a duplicate-free version of the array.
   var uniq = function(array) {
+    var result = [];
+    for(var i = 0; i < array.length; i++) {
+      var duplicate = false;
+      for(var j = 0; j < result.length; j++) {
+        if(result[j] == array[i]) {
+            duplicate = true;  
+        }
+      }
+      if(!duplicate) {
+        result.push(array[i]);
+      }
+    }
+    return result;
   };
 
   // Return a function that can be called at most one time. Subsequent calls
   // should return the previously returned value.
   var once = function(func) {
+    var result;
+    var called;
+
+    var onceFunction = function(){
+      if(called){
+        return result;
+      } else {
+        result = func();
+        called = true;
+        return result;
+      }
+    };    
+    return onceFunction;
   };
 
   // Memoize an expensive function by storing its results. You may assume

@@ -133,6 +133,8 @@ $(document).ready(function() {
   test("once", function() {
     var num = 0;
     var increment = _.once(function(){ num++; });
+    var decrement = _.once(function(){ zum--; });
+    var multiplyfiy = _.once(function() { something });
     increment();
     increment();
     equal(num, 1);
