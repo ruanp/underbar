@@ -2,16 +2,13 @@
   
   // Call iterator(value, key, obj) for each element of obj
   var each = function(obj, iterator) {
-    // console.log(obj.isArray);
     if (Array.isArray(obj)) {
-      // Array
       for(var i = 0; i < obj.length; i++){
         iterator(obj[i],i,obj);
       }
     }
     else {
       for(var key in obj) {
-        //console.log(ourObject[k]);
         if (obj.hasOwnProperty(key)) {
           iterator(obj[key],key,obj);
         };
@@ -111,8 +108,10 @@
   var reduce = function(obj, iterator, initialValue) {
     
     var previousValue = initialValue;
+
     if (!initialValue) previousValue = 0;
     if (!obj) return initialValue;
+    
     for (var i = 0; i < obj.length ; i++) {
       previousValue = iterator(previousValue, obj[i]);
     }
@@ -190,10 +189,11 @@
         result = func();
         called = true;
         return result;
-      }
+      };
     };    
     return onceFunction;
   };
+
 
   // Memoize an expensive function by storing its results. You may assume
   // that the function takes only one argument and that it is a primitive.
@@ -202,7 +202,19 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   var memoize = function(func) {
+
+    var results = new Object();
+
+    var fastFunc = function(param) {
+
+      if (!results.hasOwnProperty(param)) {
+        results[param] = func(param);
+      }; 
+      return results[param];
+    }; 
+    return fastFunc;
   };
+
 
   // Delays a function for the given number of milliseconds, and then calls
   // it with the arguments supplied.
@@ -215,16 +227,10 @@
     params = _.last(arguments, num_args);
     
     var timedFunction = function() {
-      // functions can take parameters as an array
       func(params);
     };
 
-    //setTimeout(timedFunction(), wait);
-
-    setTimeout(function() {
-      // functions can take parameters as an array
-      func(params);
-    }, wait);
+    setTimeout(timedFunction, wait);
   };
   
 
@@ -241,11 +247,40 @@
   //   }); // obj1 now contains key1, key2, key3 and bla
   //
   var extend = function(obj) {
+
+    param_array = _.last(arguments, (arguments.length - 1));
+
+    var extendObj = function(kvpairs) {
+      for (var key in kvpairs) {
+        obj[key] = kvpairs[key];
+      };
+    };
+
+    for (i = 0; i < param_array.length; i++) {
+      extendObj(param_array[i]);
+    }
+
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   var defaults = function(obj) {
+
+     param_array = _.last(arguments, (arguments.length - 1));
+
+     var extendObj = function(kvpairs) {
+       for (var key in kvpairs) {
+        if (obj[key] === undefined) obj[key] = kvpairs[key];
+       };
+     };
+
+     for (i = 0; i < param_array.length; i++) {
+       extendObj(param_array[i]);
+     }
+
+     return obj;
+
   };
 
   // Flattens a multidimensional array to a one-dimensional array that
@@ -254,13 +289,50 @@
   // Hints: Use Array.isArray to check if something is an array
   //
   var flatten = function(nestedArray, result) {
+
+    var takeElement = function(input) {
+      if (Array.isArray(input)) {
+        
+        for (i = 0; i < input.length; i++) {
+          takeElement(input[i]);
+        }; 
+      } else {
+        answer.push(input);
+      };
+    };
+
+    var answer = [];
+
+    if(!Array.isArray(nestedArray)) {
+      nestedArray = Array.prototype.slice.call(nestedArray,0);
+    };
+
+    takeElement(nestedArray);
+    return answer;
   };
 
   // Sort the object's values by a criterion produced by an iterator.
   // If iterator is a string, sort objects by that property with the name
   // of that string. For example, _.sortBy(people, 'name') should sort
   // an array of people by their name.
-  var sortBy = function(obj, iterator) {
+  var sortBy = function(arr, iterator) {
+
+    if (typeof(iterator) != 'function') {
+      oldIterator = iterator;
+      iterator = function(el) {
+        return el[oldIterator];
+      }
+    }
+
+    return arr.sort(function(a, b) {  
+      if (iterator(a) > iterator(b))
+        return 1;
+      if (iterator(a) === iterator(b))
+        return 0;
+      else 
+        return -1;
+    })
+
   };
 
   // Zip together two or more arrays with elements of the same index 
@@ -269,20 +341,99 @@
   // Example:
   // _.zip(['a','b','c','d'], [1,2,3]) returns [['a',1], ['b',2], ['c',3]]
   var zip = function() {
+
+    var argsArray = Array.prototype.slice.call(arguments,0);
+    var numArgs = argsArray.length;
+    var maxLength = _.reduce(argsArray, function(prev, array) {
+      if (prev > array.length) {
+        return prev;
+      }
+      return array.length;  
+    });
+
+    result = [];
+
+    for (var i = 0; i < maxLength; i++) {
+      result[i] = _.map(argsArray, function(eachArray) {return eachArray[i];});
+    };
+
+    return result;
+
   };
 
   // Produce an array that contains every item shared between all the
   // passed-in arrays.
   var intersection = function(array) {
+
+    var argsArray = Array.prototype.slice.call(arguments,1);
+    var numArgs = argsArray.length;
+  
+    var deepSelector = function (element) {
+        var inAll = true;
+        _.each(argsArray, function(array) {
+          if (!(_.contains(array,element))) {
+            inAll = false;
+          } 
+        });
+        return inAll;
+    };
+
+    var chosenOnes = select(array, deepSelector);
+
+    return chosenOnes;
+
   };
 
   // Take the difference between one array and a number of other arrays.
   // Only the elements present in just the first array will remain.
   var difference = function(array) {
+
+    var argsArray = Array.prototype.slice.call(arguments,1);
+    var numArgs = argsArray.length;
+  
+    var deepSelector = function (element) {
+        var inAny = false;
+        _.each(argsArray, function(array) {
+          if ((_.contains(array,element))) {
+            inAny = true;
+          } 
+        });
+        return !inAny;
+    };
+
+    var chosenOnes = select(array, deepSelector);
+
+    return chosenOnes;
+
   };
 
   // Shuffle an array.
   var shuffle = function(obj) {
+    var thisArray = obj;
+
+    var spliceTarget = Math.floor((Math.random() * ((thisArray.length) - 2)));
+    var howMany = Math.floor(Math.random() * ((thisArray.length - spliceTarget)));
+    var extracted = thisArray.splice(spliceTarget, howMany);
+
+    extracted.reverse();
+
+    var element;
+    _.each(thisArray, function(element) {extracted.push(element);});
+
+    if (extracted != obj) {
+      return extracted;
+    } else {
+      return shuffle(extracted);
+    }
+
+  };
+
+  var range = function(maxnumber){
+    var outputArray = [];
+    for(var i = 0; i < maxnumber; i++){
+      outputArray.push(i);
+    }
+    return outputArray;
   };
 
   // EXTRA CREDIT:
@@ -326,6 +477,7 @@
     difference: difference,
     shuffle: shuffle,
     chain: chain,
+    range: range,
     throttle: throttle
   };
 
