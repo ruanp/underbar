@@ -324,7 +324,8 @@
       }
     }
 
-    return arr.sort(function(a, b) {  
+    var newArr = arr;
+    return newArr.sort(function(a, b) {  
       if (iterator(a) > iterator(b))
         return 1;
       if (iterator(a) === iterator(b))
@@ -409,24 +410,12 @@
 
   // Shuffle an array.
   var shuffle = function(obj) {
-    var thisArray = obj;
-
-    var spliceTarget = Math.floor((Math.random() * ((thisArray.length) - 2)));
-    var howMany = Math.floor(Math.random() * ((thisArray.length - spliceTarget)));
-    var extracted = thisArray.splice(spliceTarget, howMany);
-
-    extracted.reverse();
-
-    var element;
-    _.each(thisArray, function(element) {extracted.push(element);});
-
-    if (extracted != obj) {
-      return extracted;
-    } else {
-      return shuffle(extracted);
+    var randomElement = function() {
+      return Math.random();
     }
-
+    return _.sortBy(obj.slice(0), randomElement);
   };
+
 
   var range = function(maxnumber){
     var outputArray = [];
