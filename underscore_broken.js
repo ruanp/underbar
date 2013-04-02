@@ -1,8 +1,8 @@
 (function() {
-  
+
   // Call iterator(value, key, obj) for each element of obj
   var each = function(obj, iterator) {
-    if (Array.isArray(obj)) {
+    if (obj instanceof Array) {
       for(var i = 0; i < obj.length; i++){
         iterator(obj[i],i,obj);
       }
@@ -18,33 +18,22 @@
 
   // Determine if the array or object contains a given value (using `===`).
   var contains = function(obj, target) {
-    if(Array.isArray(obj)){
-      for(var i = 0; i < obj.length; i++) {
-        if(obj[i] === target) {
-          return true;
-        }
-      }
-      return false;
-    } 
-    else {
-      for(var key in obj) {
-        if(obj[key] === target) {
-          return true;
-        }
-      }
-      return false;
-    }
+    var result = false;
+    _.each(obj, function(element, index,object) {
+      result = (element === target) ? true : result;
+    });
+    return result;
   };
 
   // Return the results of applying an iterator to each element.
   var map = function(array, iterator) {
     if (array === null) return [];
-    
+
     var mapResult = [];
 
-    for (var i = 0; i < array.length; i++) {
-      mapResult[i] = iterator(array[i]);
-    };
+    _.each(array, function(el,i) {
+      mapResult[i] = iterator(el);
+    });
 
     return mapResult;
   };
@@ -53,17 +42,16 @@
   // a certain property in it. E.g. take an array of people and return
   // an array of just their ages
   var pluck = function(obj, property) {
-    var pluckResult = [];
-    for (var i = 0; i < obj.length; i++) {
-      pluckResult[i] = obj[i][property];
-    };
+    var pluckResult = _.map(obj, function(element) {
+      return element[property];
+    });
     return pluckResult;
   };
 
   // Return an array of the last n elements of an array. If n is undefined,
   // return just the last element.
   var last = function(array, n) {
-    
+
     if (n === undefined) n = 1;
     if (array === null) return undefined;
     if (n > array.length) n = array.length;
