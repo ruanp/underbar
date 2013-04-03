@@ -72,6 +72,10 @@ $(document).ready(function() {
     var sum = _.reduce([1, 2, 3], function(sum, num){ return sum + num; });
     equal(sum, 6, 'default initial value');
 
+    //Add new test for reduction via multiplication or division -- affected by 0 initial value
+    var prod = _.reduce([1, 2, 3, 4], function(prod, num){ return prod * num; });
+    equal(prod, 24, 'can reduce via multiplication');
+
     ok(_.reduce(null, function(){}, 138) === 138, 'handles a null (with initial value) properly');
   });
 
